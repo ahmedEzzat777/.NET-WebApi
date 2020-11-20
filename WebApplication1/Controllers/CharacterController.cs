@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using WebApplication1.Dtos.Character;
 using WebApplication1.Services.CharacterService;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class CharacterController : ControllerBase
@@ -18,6 +20,7 @@ namespace WebApplication1.Controllers
             _service = service;
         }
 
+        //[AllowAnonymous]
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
         {
