@@ -52,11 +52,11 @@ namespace WebApplication1.Services.CharacterService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters(int userId)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
 
-            serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(characters);
+            serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(characters.Where(c => c.User.Id == userId));
 
             return serviceResponse;
         }

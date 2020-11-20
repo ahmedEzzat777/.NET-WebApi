@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WebApplication1.Dtos.Character;
 using WebApplication1.Services.CharacterService;
@@ -24,7 +26,9 @@ namespace WebApplication1.Controllers
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _service.GetAllCharacters());
+            var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
+
+            return Ok(await _service.GetAllCharacters(userId));
         }
 
         [HttpGet("{id}")]
