@@ -11,6 +11,6 @@ namespace RpgWebApi.Models
         public string UserName { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-        public ICollection<Character> Characters { get; set; }
+        public List<Character> Characters { get; set; }
     }
 }

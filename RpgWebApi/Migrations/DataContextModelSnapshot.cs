@@ -21,9 +21,9 @@ namespace RpgWebApi.Migrations
 
             modelBuilder.Entity("RpgWebApi.Models.Character", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .UseIdentityColumn();
 
                     b.Property<int>("Class")
@@ -75,6 +75,30 @@ namespace RpgWebApi.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("RpgWebApi.Models.Weapon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<int>("CharacterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Damage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId")
+                        .IsUnique();
+
+                    b.ToTable("Weapons");
+                });
+
             modelBuilder.Entity("RpgWebApi.Models.Character", b =>
                 {
                     b.HasOne("RpgWebApi.Models.User", "User")
@@ -82,6 +106,22 @@ namespace RpgWebApi.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RpgWebApi.Models.Weapon", b =>
+                {
+                    b.HasOne("RpgWebApi.Models.Character", "Character")
+                        .WithOne("Weapon")
+                        .HasForeignKey("RpgWebApi.Models.Weapon", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("RpgWebApi.Models.Character", b =>
+                {
+                    b.Navigation("Weapon");
                 });
 
             modelBuilder.Entity("RpgWebApi.Models.User", b =>
