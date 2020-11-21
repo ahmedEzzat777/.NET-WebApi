@@ -20,6 +20,7 @@ using RpgWebApi.Data;
 using RpgWebApi.Services;
 using RpgWebApi.Services.CharacterService;
 using RpgWebApi.Services.CharacterSkillService;
+using RpgWebApi.Services.FightService;
 using RpgWebApi.Services.WeaponService;
 
 namespace RpgWebApi
@@ -43,6 +44,7 @@ namespace RpgWebApi
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IWeaponService, WeaponService>();
             services.AddScoped<ICharacterSkillService, CharacterSkillService>();
+            services.AddScoped<IFightService, FightService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
