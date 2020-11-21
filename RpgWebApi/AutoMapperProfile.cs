@@ -13,6 +13,7 @@ namespace RpgWebApi
             CreateMap<AddCharacterDto, Character>();
             CreateMap<UpdateCharacterDto, Character>();
             CreateMap<AddWeaponDto, Weapon>();
+            CreateMap<Weapon, GetWeaponDto>();
         }
     }
 }
