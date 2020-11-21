@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RpgWebApi.Data;
 using RpgWebApi.Services.CharacterService;
+using RpgWebApi.Services.WeaponService;
 
 namespace RpgWebApi
 {
@@ -38,6 +39,7 @@ namespace RpgWebApi
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ICharacterService, CharacterService>();
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IWeaponService, WeaponService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
