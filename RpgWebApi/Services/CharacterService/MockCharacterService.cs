@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using RpgWebApi.Dtos.Character;
 using RpgWebApi.Models;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace RpgWebApi.Services.CharacterService
 {
@@ -14,12 +16,18 @@ namespace RpgWebApi.Services.CharacterService
             new Character(),
             new Character(){ Id = 1, Name = "Sam"}
         };
-        private IMapper _mapper;
 
-        public MockCharacterService(IMapper mapper)
+        private IMapper _mapper;
+        private IHttpContextAccessor _accessor;
+
+        public MockCharacterService(IMapper mapper, IHttpContextAccessor accessor)
         {
             _mapper = mapper;
+            _accessor = accessor;
         }
+
+        private int GetUserId() => int.Parse(_accessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+
 
         public async Task<ServiceResponse<List<GetCharacterDto>>> AddCharacter(AddCharacterDto newCharacter)
         {
@@ -27,6 +35,7 @@ namespace RpgWebApi.Services.CharacterService
             Character character = _mapper.Map<Character>(newCharacter);
 
             character.Id = characters.Max(c => c.Id) + 1;
+            character.User.Id = GetUserId();
             characters.Add(character);
             serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(characters);
             return serviceResponse;
@@ -38,7 +47,7 @@ namespace RpgWebApi.Services.CharacterService
 
             try
             {
-                var deletedCharacterIndex = characters.FindIndex(c => c.Id == id);
+                var deletedCharacterIndex = characters.FindIndex(c => c.Id == id && c.User.Id == GetUserId());
 
                 characters.RemoveAt(deletedCharacterIndex);
 
@@ -52,11 +61,11 @@ namespace RpgWebApi.Services.CharacterService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters(int userId)
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
 
-            serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(characters.Where(c => c.User.Id == userId));
+            serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(characters.Where(c => c.User.Id == GetUserId()));
 
             return serviceResponse;
         }
@@ -65,7 +74,7 @@ namespace RpgWebApi.Services.CharacterService
         {
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
 
-            serviceResponse.Data = _mapper.Map<GetCharacterDto>(characters[id]);
+            serviceResponse.Data = _mapper.Map<GetCharacterDto>(characters.FirstOrDefault(c => c.Id == id && c.User.Id == GetUserId()));
 
             return serviceResponse;
         }
@@ -75,7 +84,7 @@ namespace RpgWebApi.Services.CharacterService
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
             try
             {
-                var newCharacter = characters.FirstOrDefault(c => c.Id == character.Id);
+                var newCharacter = characters.FirstOrDefault(c => c.Id == character.Id && c.User.Id == GetUserId());
 
                 foreach (var prop in newCharacter.GetType().GetProperties())
                     prop.SetValue(newCharacter, character.GetType().GetProperty(prop.Name)?.GetValue(character));

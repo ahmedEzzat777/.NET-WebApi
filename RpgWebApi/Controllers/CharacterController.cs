@@ -26,15 +26,19 @@ namespace RpgWebApi.Controllers
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
         {
-            var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
-
-            return Ok(await _service.GetAllCharacters(userId));
+            return Ok(await _service.GetAllCharacters());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSingle(int id)
         {
-            return Ok(await _service.GetCharacter(id));
+
+            var serviceResponse = await _service.GetCharacter(id);
+
+            if (!serviceResponse.Success)
+                return NotFound(serviceResponse);
+
+            return Ok(serviceResponse);
         }
 
         [HttpPost]
