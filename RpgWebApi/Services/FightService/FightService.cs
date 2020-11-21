@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RpgWebApi.Data;
 using RpgWebApi.Dtos.Fight;
 using RpgWebApi.Models;
@@ -12,10 +13,12 @@ namespace RpgWebApi.Services.FightService
     public class FightService : IFightService
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public FightService(DataContext context)
+        public FightService(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<ServiceResponse<FightResutlDto>> Fight(FightRequestDto fightRequestDto)
@@ -226,6 +229,30 @@ namespace RpgWebApi.Services.FightService
                 opponent.HitPoints -= damage;
 
             return damage;
+        }
+
+        public async Task<ServiceResponse<List<HighscoreDto>>> GetHighscores()
+        {
+            var response = new ServiceResponse<List<HighscoreDto>>();
+
+            try
+            {
+                var characters = await _context.Characters
+                    .Where(c => c.Fights > 0)
+                    .OrderByDescending(c => c.Victories)
+                    .ThenBy(c => c.Defeats)
+                    .ThenBy(c => c.Fights)
+                    .ToListAsync();
+
+                response.Data = _mapper.Map<List<HighscoreDto>>(characters);
+            }
+            catch (Exception e)
+            {
+                response.Message = e.Message;
+                response.Success = false;
+            }
+
+            return response;
         }
     }
 }

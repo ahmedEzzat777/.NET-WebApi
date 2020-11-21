@@ -51,5 +51,16 @@ namespace RpgWebApi.Controllers
 
             return Ok(response);
         }
+
+        public async Task<IActionResult> GetHighscores()
+        {
+            var response = await _service.GetHighscores();
+
+            if (!response.Success)
+                return NotFound(response);
+
+            return Ok(response);
+        }
+
     }
 }

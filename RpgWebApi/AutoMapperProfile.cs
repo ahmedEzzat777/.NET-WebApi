@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RpgWebApi.Dtos.Character;
+using RpgWebApi.Dtos.Fight;
 using RpgWebApi.Dtos.Skill;
 using RpgWebApi.Dtos.Weapon;
 using RpgWebApi.Models;
@@ -19,6 +20,7 @@ namespace RpgWebApi
             CreateMap<AddWeaponDto, Weapon>();
             CreateMap<Weapon, GetWeaponDto>();
             CreateMap<Skill, GetSkillDto>();
+            CreateMap<Character, HighscoreDto>();
         }
     }
 }
