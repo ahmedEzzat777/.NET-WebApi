@@ -18,6 +18,87 @@ namespace RpgWebApi.Services.FightService
             _context = context;
         }
 
+        public async Task<ServiceResponse<FightResutlDto>> Fight(FightRequestDto fightRequestDto)
+        {
+            var response = new ServiceResponse<FightResutlDto>();
+            var log = new List<string>();
+            try
+            {
+                var characters = await _context.Characters
+                        .Include(c => c.Weapon)
+                        .Include(c => c.CharacterSkills).ThenInclude(cs => cs.Skill)
+                        .Where(c => fightRequestDto.CharacterIds.Contains(c.Id))
+                        .ToListAsync();
+
+                if (characters.Count >= 2)
+                {
+                    var defeated = false;
+
+                    while (!defeated)
+                    {
+                        foreach (var attacker in characters)
+                        {
+                            var opponents = characters.Where(c => c.Id != attacker.Id).ToList();
+                            var opponent = opponents[new Random().Next(opponents.Count)];
+
+                            var damage = 0;
+                            var attackUsed = string.Empty;
+
+                            var useWeapon = new Random().Next(2) == 0;
+
+                            if (useWeapon)
+                            {
+                                attackUsed = attacker.Weapon?.Name;
+                                damage = DoWeaponAttack(attacker, opponent);
+                            }
+                            else
+                            {
+                                var randomSkill = new Random().Next(attacker.CharacterSkills.Count);
+                                attackUsed = attacker.CharacterSkills.FirstOrDefault(cs => cs.SkillId == randomSkill)?.Skill.Name;
+                                damage = DoSkillAttack(randomSkill, attacker, opponent);
+                            }
+
+                            log.Add($"{attacker.Name} attacks {opponent.Name} using {attackUsed} with {(damage >= 0? damage : 0)} damage.");
+
+                            if (opponent.HitPoints <= 0)
+                            {
+                                defeated = true;
+
+                                attacker.Victories++;
+                                opponent.Defeats++;
+
+                                log.Add($"{opponent.Name} has been defeated!");
+                                log.Add($"{attacker.Name} wins with {attacker.HitPoints} HP left!");
+                                break;
+                            }
+                        }
+                    }
+
+                    characters.ForEach(c =>
+                    {
+                        c.Fights++;
+                        c.HitPoints = 100;
+                    });
+
+                    await _context.SaveChangesAsync();
+
+                    response.Data = new FightResutlDto { Log = log};
+                }
+                else
+                {
+                    response.Message = "insufficient characters";
+                    response.Success = false;
+                }
+            }
+            catch (Exception e)
+            {
+                response.Message = e.Message;
+                response.Success = false;
+            }
+
+            return response;
+        }
+
         public async Task<ServiceResponse<AttackResultDto>> SkillAttack(SkillAttackDto skillAttackDto)
         {
             var response = new ServiceResponse<AttackResultDto>();
@@ -32,13 +113,7 @@ namespace RpgWebApi.Services.FightService
 
                 if (attacker != null && opponent != null)
                 {
-                    var damage = attacker.CharacterSkills
-                        .First(cs => cs.SkillId == skillAttackDto.SkillId).Skill.Damage + new Random().Next(attacker.Intelligence);
-
-                    damage -= new Random().Next(opponent.Defense);
-
-                    if (damage > 0)
-                        opponent.HitPoints -= damage;
+                    int damage = DoSkillAttack(skillAttackDto.SkillId, attacker, opponent);
 
                     if (opponent.HitPoints <= 0)
                     {
@@ -48,6 +123,9 @@ namespace RpgWebApi.Services.FightService
 
                         opponent.Defeats++;
                         attacker.Victories++;
+
+                        attacker.HitPoints = 100;
+                        opponent.HitPoints = 100;
                     }
 
                     await _context.SaveChangesAsync();
@@ -75,6 +153,19 @@ namespace RpgWebApi.Services.FightService
             return response;
         }
 
+        private int DoSkillAttack(int skillId, Character attacker, Character opponent)
+        {
+            var damage = attacker.CharacterSkills
+                .FirstOrDefault(cs => cs.SkillId == skillId)?.Skill.Damage + new Random().Next(attacker.Intelligence)??0;
+
+            damage -= new Random().Next(opponent.Defense);
+
+            if (damage > 0)
+                opponent.HitPoints -= damage;
+
+            return damage;
+        }
+
         public async Task<ServiceResponse<AttackResultDto>> WeaponAttack(WeaponAttackDto weaponAttackDto)
         {
             var response = new ServiceResponse<AttackResultDto>();
@@ -86,20 +177,19 @@ namespace RpgWebApi.Services.FightService
 
                 if (attacker != null && opponent != null)
                 {
-                    var damage = attacker.Weapon.Damage + new Random().Next(attacker.Strength);
-                    damage -= new Random().Next(opponent.Defense);
-
-                    if (damage > 0)
-                        opponent.HitPoints -= damage;
+                    int damage = DoWeaponAttack(attacker, opponent);
 
                     if (opponent.HitPoints <= 0)
-                    { 
+                    {
                         response.Message = $"{opponent.Name} has been defeated!";
                         attacker.Fights++;
                         opponent.Fights++;
 
                         opponent.Defeats++;
                         attacker.Victories++;
+
+                        attacker.HitPoints = 100;
+                        opponent.HitPoints = 100;
                     }
 
                     await _context.SaveChangesAsync();
@@ -125,6 +215,17 @@ namespace RpgWebApi.Services.FightService
             }
 
             return response;
+        }
+
+        private int DoWeaponAttack(Character attacker, Character opponent)
+        {
+            var damage = attacker.Weapon?.Damage + new Random().Next(attacker.Strength)??0;
+            damage -= new Random().Next(opponent.Defense);
+
+            if (damage > 0)
+                opponent.HitPoints -= damage;
+
+            return damage;
         }
     }
 }

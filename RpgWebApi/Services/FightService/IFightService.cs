@@ -11,5 +11,6 @@ namespace RpgWebApi.Services.FightService
     {
         Task<ServiceResponse<AttackResultDto>> WeaponAttack(WeaponAttackDto weaponAttackDto);
         Task<ServiceResponse<AttackResultDto>> SkillAttack(SkillAttackDto skillAttackDto);
+        Task<ServiceResponse<FightResutlDto>> Fight(FightRequestDto fightRequestDto);
     }
 }

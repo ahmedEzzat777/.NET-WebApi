@@ -41,5 +41,15 @@ namespace RpgWebApi.Controllers
             return Ok(response);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Fight(FightRequestDto fightRequestDto)
+        {
+            var response = await _service.Fight(fightRequestDto);
+
+            if (!response.Success)
+                return NotFound(response);
+
+            return Ok(response);
+        }
     }
 }
