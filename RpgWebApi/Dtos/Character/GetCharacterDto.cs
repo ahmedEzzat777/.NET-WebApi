@@ -1,5 +1,7 @@
-﻿using RpgWebApi.Dtos.Weapon;
+﻿using RpgWebApi.Dtos.Skill;
+using RpgWebApi.Dtos.Weapon;
 using RpgWebApi.Models;
+using System.Collections.Generic;
 
 namespace RpgWebApi.Dtos.Character
 {
@@ -13,6 +15,6 @@ namespace RpgWebApi.Dtos.Character
         public int Intelligence { get; set; } = 10;
         public RpgClass Class { get; set; } = RpgClass.Knight;
         public GetWeaponDto Weapon { get; set; }
-
+        public List<GetSkillDto> Skills { get; set; }
     }
 }

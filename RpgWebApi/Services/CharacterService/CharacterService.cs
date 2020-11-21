@@ -67,7 +67,10 @@ namespace RpgWebApi.Services.CharacterService
                     await _context.SaveChangesAsync();
 
                     serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(
-                        await _context.Characters.Include(c => c.Weapon).Where(c => c.User.Id == GetUserId()).ToListAsync()
+                        await _context.Characters
+                            .Include(c => c.Weapon)
+                            .Include(c => c.CharacterSkills).ThenInclude(cs => cs.Skill)
+                            .Where(c => c.User.Id == GetUserId()).ToListAsync()
                         );
                 }
                 else
@@ -91,7 +94,10 @@ namespace RpgWebApi.Services.CharacterService
 
             try
             {
-                var dbCharacters = await _context.Characters.Include(c => c.Weapon).Where(c => c.User.Id == GetUserId()).ToListAsync();
+                var dbCharacters = await _context.Characters
+                    .Include(c => c.Weapon)
+                    .Include(c => c.CharacterSkills).ThenInclude(cs => cs.Skill)
+                    .Where(c => c.User.Id == GetUserId()).ToListAsync();
 
                 serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(dbCharacters);
             }
@@ -110,7 +116,10 @@ namespace RpgWebApi.Services.CharacterService
 
             try
             { 
-                var dbCharacter = await _context.Characters.Include(c => c.Weapon).FirstOrDefaultAsync(c => c.Id == id && c.User.Id == GetUserId());
+                var dbCharacter = await _context.Characters
+                    .Include(c => c.Weapon)
+                    .Include(c => c.CharacterSkills).ThenInclude(cs => cs.Skill)
+                    .FirstOrDefaultAsync(c => c.Id == id && c.User.Id == GetUserId());
 
                 if (dbCharacter != null)
                 {

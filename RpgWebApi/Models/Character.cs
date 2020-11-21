@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace RpgWebApi.Models
 {
@@ -17,5 +13,6 @@ namespace RpgWebApi.Models
         public RpgClass Class { get; set; } = RpgClass.Knight;
         public User User { get; set; }
         public Weapon Weapon { get; set; }
+        public List<CharacterSkill> CharacterSkills { get; set; }
     }
 }
