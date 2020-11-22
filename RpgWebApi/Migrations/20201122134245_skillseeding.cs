@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace RpgWebApi.Migrations
 {
-    public partial class initialmigrationsqlite : Migration
+    public partial class skillseeding : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,7 +49,7 @@ namespace RpgWebApi.Migrations
                     Defense = table.Column<int>(type: "INTEGER", nullable: false),
                     Intelligence = table.Column<int>(type: "INTEGER", nullable: false),
                     Class = table.Column<int>(type: "INTEGER", nullable: false),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
                     Fights = table.Column<int>(type: "INTEGER", nullable: false),
                     Victories = table.Column<int>(type: "INTEGER", nullable: false),
                     Defeats = table.Column<int>(type: "INTEGER", nullable: false)
@@ -62,7 +62,7 @@ namespace RpgWebApi.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,6 +109,21 @@ namespace RpgWebApi.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Skills",
+                columns: new[] { "Id", "Damage", "Name" },
+                values: new object[] { 1, 30, "Fireball" });
+
+            migrationBuilder.InsertData(
+                table: "Skills",
+                columns: new[] { "Id", "Damage", "Name" },
+                values: new object[] { 2, 20, "Frenzy" });
+
+            migrationBuilder.InsertData(
+                table: "Skills",
+                columns: new[] { "Id", "Damage", "Name" },
+                values: new object[] { 3, 50, "Blizzard" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Characters_UserId",

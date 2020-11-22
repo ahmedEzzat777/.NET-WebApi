@@ -35,7 +35,7 @@ namespace RpgWebApi.Data
                 serviceResponse.Success = false;
                 serviceResponse.Message = "invalid user or password";
             }
-            else if (VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            else if (Utility.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             { 
                 serviceResponse.Data = CreateToken(user);
             }
@@ -60,7 +60,7 @@ namespace RpgWebApi.Data
             }
 
 
-            CreatePassword(password, out byte[] passwordHash, out byte[] passwordSalt);
+            Utility.CreatePassword(password, out byte[] passwordHash, out byte[] passwordSalt);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
@@ -77,27 +77,6 @@ namespace RpgWebApi.Data
         public async Task<bool> UserExists(string userName)
         {
             return await _context.Users.AnyAsync(u => u.UserName.ToLower() == userName.ToLower());
-        }
-
-        private void CreatePassword(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            }
-        }
-
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            bool result = false;
-            using (var hmac = new HMACSHA512(passwordSalt))
-            {
-                if (Enumerable.SequenceEqual(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)), passwordHash))
-                    result = true;
-            }
-
-            return result;
         }
 
         private string CreateToken(User user)

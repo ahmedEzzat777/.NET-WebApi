@@ -9,8 +9,8 @@ using RpgWebApi.Data;
 namespace RpgWebApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20201122125202_initialmigration-sqlite")]
-    partial class initialmigrationsqlite
+    [Migration("20201122134245_skillseeding")]
+    partial class skillseeding
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -48,7 +48,7 @@ namespace RpgWebApi.Migrations
                     b.Property<int>("Strength")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Victories")
@@ -91,6 +91,26 @@ namespace RpgWebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Skills");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Damage = 30,
+                            Name = "Fireball"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Damage = 20,
+                            Name = "Frenzy"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Damage = 50,
+                            Name = "Blizzard"
+                        });
                 });
 
             modelBuilder.Entity("RpgWebApi.Models.User", b =>
@@ -146,7 +166,9 @@ namespace RpgWebApi.Migrations
                 {
                     b.HasOne("RpgWebApi.Models.User", "User")
                         .WithMany("Characters")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
